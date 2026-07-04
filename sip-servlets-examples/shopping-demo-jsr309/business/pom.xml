@@ -162,8 +162,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>25</source>
+					<target>25</target>
 				</configuration>
 			</plugin>
 			<plugin>
