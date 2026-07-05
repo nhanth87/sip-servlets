@@ -223,7 +223,7 @@ public abstract class SipServletResponseImpl extends SipServletMessageImpl imple
 				logger.info("ackRequest just created " + ackRequest);
 			}
 			//Application Routing to avoid going through the same app that created the ack
-			ListIterator<RouteHeader> routeHeaders = ackRequest.getHeaders(RouteHeader.NAME);
+			ListIterator<RouteHeader> routeHeaders = (ListIterator) ackRequest.getHeaders(RouteHeader.NAME);
 			ackRequest.removeHeader(RouteHeader.NAME);
 			while (routeHeaders.hasNext()) {
 				RouteHeader routeHeader = routeHeaders.next();
@@ -284,7 +284,7 @@ public abstract class SipServletResponseImpl extends SipServletMessageImpl imple
 			prackRequest.addHeader(viaHeader);
 			
 			//Application Routing to avoid going through the same app that created the ack
-			ListIterator<RouteHeader> routeHeaders = prackRequest.getHeaders(RouteHeader.NAME);
+			ListIterator<RouteHeader> routeHeaders = (ListIterator) prackRequest.getHeaders(RouteHeader.NAME);
 			prackRequest.removeHeader(RouteHeader.NAME);
 			while (routeHeaders.hasNext()) {
 				RouteHeader routeHeader = routeHeaders.next();

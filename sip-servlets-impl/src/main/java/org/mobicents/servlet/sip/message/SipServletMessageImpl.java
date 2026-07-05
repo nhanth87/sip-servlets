@@ -331,7 +331,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 			} else {
 				// Dealing with Allow:INVITE, ACK, CANCEL, OPTIONS, BYE kind of values
 				if(JainSipUtils.LIST_HEADER_NAMES.contains(name)) {
-					List<Header> headers = SipFactory.getInstance().createHeaderFactory()
+					List<Header> headers = (List) SipFactory.getInstance().createHeaderFactory()
 						.createHeaders(name + ":" + value);
 					for (Header header : headers) {
 						this.message.addHeader(header);
@@ -542,7 +542,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 		LinkedList<Address> retval = new LinkedList<Address>();
 		String nameToSearch = getCorrectHeaderName(hName);
 
-		for (Iterator<Header> it = this.message.getHeaders(nameToSearch); it
+		for (Iterator<Header> it = (Iterator) this.message.getHeaders(nameToSearch); it
 				.hasNext();) {
 			Header header = (Header) it.next();
 			if (header instanceof HeaderAddress) {
@@ -929,7 +929,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 	 * @see javax.servlet.sip.SipServletMessage#getHeaderNames()
 	 */
 	public Iterator<String> getHeaderNames() {
-		return this.message.getHeaderNames();
+		return (Iterator) this.message.getHeaderNames();
 	}
 
 	/*
@@ -941,7 +941,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 		ArrayList<String> result = new ArrayList<String>();
 
 		try {
-			ListIterator<Header> list = this.message.getHeaders(nameToSearch);
+			ListIterator<Header> list = (ListIterator) this.message.getHeaders(nameToSearch);
 			while (list != null && list.hasNext()) {
 				Header h = list.next();
 				result.add(((SIPHeader)h).getHeaderValue());
@@ -1006,8 +1006,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 	public ListIterator<Parameterable> getParameterableHeaders(String name)
 			throws ServletParseException {
 
-		ListIterator<Header> headers = this.message
-				.getHeaders(getCorrectHeaderName(name));
+		ListIterator<Header> headers = (ListIterator) this.message.getHeaders(getCorrectHeaderName(name));
 
 		ArrayList<Parameterable> result = new ArrayList<Parameterable>();
 
@@ -1657,7 +1656,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 			// Dealing with Allow:INVITE, ACK, CANCEL, OPTIONS, BYE kind of headers
 			if(JainSipUtils.LIST_HEADER_NAMES.contains(name)) {
 				this.message.removeHeader(name);
-				List<Header> headers = SipFactory.getInstance().createHeaderFactory()
+				List<Header> headers = (List) SipFactory.getInstance().createHeaderFactory()
 					.createHeaders(name + ":" + value);
 				for (Header header : headers) {
 					this.message.addHeader(header);
@@ -2220,7 +2219,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 	// Container does not recognise 100rel if there are other extensions on the Require or Supported line
 	// we check all the values of Require and Supported headers to make sure the 100rel is present
 	protected boolean containsRel100(Message message) {
-		ListIterator<SIPHeader> requireHeaders = message.getHeaders(RequireHeader.NAME);
+		ListIterator<SIPHeader> requireHeaders = (ListIterator) message.getHeaders(RequireHeader.NAME);
 		if(requireHeaders != null) {
 			while (requireHeaders.hasNext()) {
 				if(REL100_OPTION_TAG.equals(requireHeaders.next().getValue())) {
@@ -2228,7 +2227,7 @@ public abstract class SipServletMessageImpl implements MobicentsSipServletMessag
 				}
 			}
 		}
-		ListIterator<SIPHeader> supportedHeaders = message.getHeaders(SupportedHeader.NAME);
+		ListIterator<SIPHeader> supportedHeaders = (ListIterator) message.getHeaders(SupportedHeader.NAME);
 		if(supportedHeaders != null) {
 			while (supportedHeaders.hasNext()) {
 				if(REL100_OPTION_TAG.equals(supportedHeaders.next().getValue())) {

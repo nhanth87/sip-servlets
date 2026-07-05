@@ -1,0 +1,141 @@
+{
+  "plan_version": "1.0.0",
+  "created": "2025-07-05",
+  "project_root": "/home/meodien/orca/workspaces/sip-servlets/j25",
+  "description": "Phase 1 CLEANUP — compact sip-servlets for Java 25. Removes: jruby, all containers except as10, all arquillian, all JBoss AS7/AS8, tomcat 7/8, catalina 7/8, old examples. Keeps: spec, core-api, impl, client, application-router, annotations, as10, 4 key examples.",
+
+  "directories_to_delete": [
+    {"path": "sip-servlets-jruby", "reason": "JRuby integration — irrelevant for Java 25"},
+    {"path": "sip-servlets-arquillian-testsuite", "reason": "Arquillian tests — heavy, legacy, tomcat-7 dependent"},
+    {"path": "sip-servlets-test-suite", "reason": "Full test suite (sipp, clustering, TCK)"},
+    {"path": "docs", "reason": "Asciidoc documentation — not needed for compact engine"},
+    {"path": "management", "reason": "JMX management webapp — legacy"},
+    {"path": "build", "reason": "Build scripts (release, jsr289-tck, jsr289-apidocs)"},
+    {"path": "containers/sip-servlets-catalina-7", "reason": "Catalina 7 — EOL Tomcat 7"},
+    {"path": "containers/sip-servlets-catalina-8", "reason": "Catalina 8 — EOL Tomcat 8"},
+    {"path": "containers/tomcat-7", "reason": "Tomcat 7 loading specifics — EOL"},
+    {"path": "containers/tomcat-8", "reason": "Tomcat 8 loading specifics — EOL"},
+    {"path": "containers/sip-servlets-as7", "reason": "JBoss AS7 container — EOL"},
+    {"path": "containers/sip-servlets-as7-drop-in", "reason": "JBoss AS7 drop-in modules/patches — EOL"},
+    {"path": "containers/sip-servlets-as8", "reason": "WildFly 8 container — EOL"},
+    {"path": "containers/sip-servlets-as8-drop-in", "reason": "WildFly 8 drop-in modules — EOL"},
+
+    {"path": "sip-servlets-examples/alerting-app", "reason": "Old example — JSLEE interop"},
+    {"path": "sip-servlets-examples/call-blocking", "reason": "Old example — not key"},
+    {"path": "sip-servlets-examples/call-forwarding-distributable", "reason": "Distributable — clustering not needed"},
+    {"path": "sip-servlets-examples/chatserver", "reason": "Old example — not key"},
+    {"path": "sip-servlets-examples/click2call-distributable", "reason": "Distributable — clustering not needed"},
+    {"path": "sip-servlets-examples/click-to-call-servlet3", "reason": "Servlet 3 variant — keep base only"},
+    {"path": "sip-servlets-examples/conference-demo-jsr309", "reason": "JSR309 media demo — heavy"},
+    {"path": "sip-servlets-examples/custom-call-forwarding-distributable", "reason": "Distributable — not needed"},
+    {"path": "sip-servlets-examples/diameter-event-charging", "reason": "Diameter — not core SIP"},
+    {"path": "sip-servlets-examples/diameter-openims", "reason": "Diameter/OpenIMS — not core SIP"},
+    {"path": "sip-servlets-examples/diameter-ro-rf", "reason": "Diameter Ro/Rf — not core SIP"},
+    {"path": "sip-servlets-examples/facebook-c2c", "reason": "Facebook C2C — obsolete, disk-only"},
+    {"path": "sip-servlets-examples/jruby-sips-demo", "reason": "JRuby demo — jruby removed, disk-only"},
+    {"path": "sip-servlets-examples/jslee-sips-interop", "reason": "JSLEE interop — legacy, disk-only"},
+    {"path": "sip-servlets-examples/location-service", "reason": "Old example — not key"},
+    {"path": "sip-servlets-examples/location-service-distributable", "reason": "Distributable — not needed"},
+    {"path": "sip-servlets-examples/media-jsr309-servlet", "reason": "JSR309 media — heavy"},
+    {"path": "sip-servlets-examples/messaging-perf-test", "reason": "Perf test — not example, disk-only"},
+    {"path": "sip-servlets-examples/presence-client-example", "reason": "Presence — legacy, disk-only"},
+    {"path": "sip-servlets-examples/pure-jruby-telco", "reason": "JRuby telco — jruby removed, disk-only"},
+    {"path": "sip-servlets-examples/shootist-sip-servlet-distributable", "reason": "Distributable — keep base only"},
+    {"path": "sip-servlets-examples/shopping-demo-jsr309", "reason": "JSR309 shopping — heavy, disk-only"},
+    {"path": "sip-servlets-examples/simple-sip-servlet-distributable", "reason": "Distributable — keep base only"},
+    {"path": "sip-servlets-examples/sip-rtsp-gateway", "reason": "RTSP gateway — not core SIP, disk-only"},
+    {"path": "sip-servlets-examples/sip-servlets-pbx", "reason": "PBX — heavy, disk-only"},
+    {"path": "sip-servlets-examples/speed-dial", "reason": "Old example — not key"},
+    {"path": "sip-servlets-examples/TeleMedicinePh1", "reason": "Telemedicine — legacy, disk-only"},
+    {"path": "sip-servlets-examples/uac-register", "reason": "UAC register — shootist covers this"},
+    {"path": "sip-servlets-examples/websocket-b2bua", "reason": "WebSocket B2BUA — not core, re-addable"}
+  ],
+
+  "directories_to_keep": [
+    {"path": "sip-servlets-spec", "reason": "JSR 289 SIP Servlet API — javax.servlet.sip.*"},
+    {"path": "sip-servlets-core-api", "reason": "Mobicents SIP core interfaces"},
+    {"path": "sip-servlets-impl", "reason": "Core SIP engine (proxy, B2BUA, sessions)"},
+    {"path": "sip-servlets-client", "reason": "SIP connector client"},
+    {"path": "sip-servlets-application-router", "reason": "Application Router (DAR)"},
+    {"path": "sip-servlets-annotations", "reason": "Concurrency annotations"},
+    {"path": "containers/sip-servlets-as10", "reason": "Undertow-based reference container (WildFly 10)"},
+    {"path": "containers/sip-servlets-as10-drop-in", "reason": "AS10 drop-in (jboss-as-restcomm, build-restcomm-modules)"},
+    {"path": "sip-servlets-examples/call-forwarding", "reason": "Key example — basic call control"},
+    {"path": "sip-servlets-examples/click-to-call", "reason": "Key example — click-to-call"},
+    {"path": "sip-servlets-examples/shootist-sip-servlet", "reason": "Key example — UAC (caller)"},
+    {"path": "sip-servlets-examples/simple-sip-servlet", "reason": "Key example — basic SIP servlet (UAS)"}
+  ],
+
+  "pom_xml_changes_root": {
+    "file": "pom.xml (ROOT)",
+    "changes": [
+      {"type": "remove_module", "line": 83, "text": "<module>sip-servlets-jruby</module>", "reason": "JRuby module from default build"},
+      {"type": "remove_property", "line": 98, "text": "<tomcat-7.version>7.0.64</tomcat-7.version>", "reason": "No longer needed"},
+      {"type": "remove_profile", "lines": "304-322", "profile_id": "tomcat-7", "reason": "EOL Tomcat 7"},
+      {"type": "remove_profile", "lines": "323-338", "profile_id": "tomcat-7-distro", "reason": "EOL Tomcat 7 distro"},
+      {"type": "remove_profile", "lines": "339-374", "profile_id": "tomcat-8", "reason": "EOL Tomcat 8"},
+      {"type": "remove_profile", "lines": "375-407", "profile_id": "tomcat-8-distro", "reason": "EOL Tomcat 8 distro"},
+      {"type": "remove_profile", "lines": "408-428", "profile_id": "as7", "reason": "EOL JBoss AS7"},
+      {"type": "remove_profile", "lines": "436-455", "profile_id": "as8", "reason": "EOL WildFly 8"},
+      {"type": "modify_release_profile", "lines": "209-220", "action": "remove modules: management/sip-servlets-management, sip-servlets-test-suite, docs. KEEP sip-servlets-examples (slimmed)"}
+    ]
+  },
+
+  "pom_xml_changes_core_api": {
+    "file": "sip-servlets-core-api/pom.xml",
+    "changes": [
+      {"type": "remove_dependency", "lines": "20-24", "artifact": "sip-servlets-jruby", "reason": "JRuby module removed"}
+    ]
+  },
+
+  "pom_xml_changes_impl": {
+    "file": "sip-servlets-impl/pom.xml",
+    "changes": [
+      {"type": "remove_dependency", "lines": "47-51", "artifact": "sip-servlets-jruby", "reason": "JRuby module removed"},
+      {"type": "remove_profile", "lines": "198-249", "profile_id": "tomcat-7-distro", "reason": "EOL"},
+      {"type": "remove_profile", "lines": "250-300", "profile_id": "tomcat-7", "reason": "EOL"},
+      {"type": "remove_profile", "lines": "301-351", "profile_id": "tomcat-8-distro", "reason": "EOL"},
+      {"type": "remove_profile", "lines": "352-402", "profile_id": "tomcat-8", "reason": "EOL"}
+    ]
+  },
+
+  "pom_xml_changes_as10_jboss": {
+    "file": "containers/sip-servlets-as10-drop-in/jboss-as-restcomm/pom.xml",
+    "changes": [
+      {"type": "remove_dependency", "lines": "185-190", "artifact": "sip-servlets-jruby", "reason": "JRuby removed — breaks build if kept"}
+    ]
+  },
+
+  "pom_xml_changes_as10_modules": {
+    "file": "containers/sip-servlets-as10-drop-in/build-restcomm-modules/pom.xml",
+    "changes": [
+      {"type": "remove_dependency", "lines": "173-178", "artifact": "sip-servlets-jruby", "reason": "JRuby removed"}
+    ]
+  },
+
+  "pom_xml_changes_as10_build_xml": {
+    "file": "containers/sip-servlets-as10-drop-in/build-restcomm-modules/build.xml",
+    "changes": [
+      {"type": "remove_line", "line": 58, "text": "<maven-resource group=\"org.mobicents.servlet.sip\" artifact=\"sip-servlets-jruby\"/>", "reason": "JRuby removed"}
+    ]
+  },
+
+  "pom_xml_changes_examples": {
+    "file": "sip-servlets-examples/pom.xml",
+    "changes": [
+      {"type": "replace_modules", "lines": "15-44", "keep": ["call-forwarding", "click-to-call", "shootist-sip-servlet", "simple-sip-servlet"], "remove_all_others": true, "reason": "Keep 4 key examples only"}
+    ]
+  },
+
+  "warnings": [
+    "sip-servlets-jruby is a compile-scope dep in core-api and impl. Java code importing org.mobicents.servlet.sip.jruby.* will fail compilation. A follow-up Java code audit is needed to remove jruby imports/usage.",
+    "AS10 drop-in modules (jboss-as-restcomm, build-restcomm-modules) reference jruby in pom.xml + build.xml. Must remove to avoid build failures.",
+    "Core modules (spec, client, annotations, application-router) have internal tomcat-7/8/as7/as8 profiles with CATALINA_HOME references. These should be cleaned but are lower priority (only activate explicitly)."
+  ],
+
+  "remaining_structure_after_cleanup": {
+    "top_level_dirs": ["sip-servlets-spec", "sip-servlets-core-api", "sip-servlets-impl", "sip-servlets-client", "sip-servlets-application-router", "sip-servlets-annotations", "containers", "sip-servlets-examples"],
+    "containers": ["sip-servlets-as10", "sip-servlets-as10-drop-in"],
+    "examples": ["call-forwarding", "click-to-call", "shootist-sip-servlet", "simple-sip-servlet"]
+  }
+}

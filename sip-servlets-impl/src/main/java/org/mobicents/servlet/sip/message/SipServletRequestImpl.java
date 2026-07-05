@@ -426,7 +426,7 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 			}
 			// Issue 1355 http://code.google.com/p/mobicents/issues/detail?id=1355 Not RFC compliant :
 			// Application Routing : Adding the recorded route headers as route headers
-//			final ListIterator<RecordRouteHeader> recordRouteHeaders = request.getHeaders(RecordRouteHeader.NAME);
+//			final ListIterator<RecordRouteHeader> recordRouteHeaders = (ListIterator) request.getHeaders(RecordRouteHeader.NAME);
 //			while (recordRouteHeaders.hasNext()) {
 //				RecordRouteHeader recordRouteHeader = (RecordRouteHeader) recordRouteHeaders
 //						.next();
@@ -436,7 +436,7 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 
 			if(session != null && session.getCopyRecordRouteHeadersOnSubsequentResponses() && !isInitial() && Request.INVITE.equals(requestMethod)) {
 				// Miss Record-Route in Response for non compliant Server in reINVITE http://code.google.com/p/mobicents/issues/detail?id=2066
-				final ListIterator<RecordRouteHeader> recordRouteHeaders = request.getHeaders(RecordRouteHeader.NAME);
+				final ListIterator<RecordRouteHeader> recordRouteHeaders = (ListIterator) request.getHeaders(RecordRouteHeader.NAME);
 				while (recordRouteHeaders.hasNext()) {
 					RecordRouteHeader recordRouteHeader = (RecordRouteHeader) recordRouteHeaders
 							.next();
@@ -873,13 +873,13 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 		// It is the containers responsibility to recognize whether the upstream element is a strict router and determine the right parameter set accordingly.
 		Vector<String> retval = new Vector<String>();
 		if(this.getPoppedRoute() != null) {
-			Iterator<String> parameterNamesIt =  this.getPoppedRoute().getURI().getParameterNames();
+			Iterator<String> parameterNamesIt = (Iterator) this.getPoppedRoute().getURI().getParameterNames();
 			while (parameterNamesIt.hasNext()) {
 				String parameterName = parameterNamesIt.next();
 				retval.add(parameterName);
 			}
 		} else {
-			Iterator<String> parameterNamesIt =  this.getRequestURI().getParameterNames();
+			Iterator<String> parameterNamesIt = (Iterator) this.getRequestURI().getParameterNames();
 			while (parameterNamesIt.hasNext()) {
 				String parameterName = parameterNamesIt.next();
 				retval.add(parameterName);
@@ -1015,7 +1015,7 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 						// nothing to do here, will never happen
 					}
 				}
-				Queue<Hop> hops = dnsServerLocator.locateHops(uriToResolve);
+//				Queue<Hop> hops = dnsServerLocator.locateHops(uriToResolve);
 				if(transportParamModified) {
 					// Issue http://code.google.com/p/sipservlets/issues/detail?id=186
 					// Resetting the transport to what is was before the modification to avoid modifying the route set
@@ -2089,8 +2089,7 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 			(SipServletResponseImpl) challengeResponse;
 
 		Response response = (Response) challengeResponseImpl.getMessage();
-		ListIterator<Header> authHeaderIterator =
-			response.getHeaders(WWWAuthenticateHeader.NAME);
+		ListIterator<Header> authHeaderIterator = (ListIterator) response.getHeaders(WWWAuthenticateHeader.NAME);
 
 		// First
 		while(authHeaderIterator.hasNext()) {
@@ -2149,8 +2148,7 @@ public abstract class SipServletRequestImpl extends SipServletMessageImpl implem
 	protected void removeStaleAuthHeaders(WWWAuthenticateHeader responseAuthHeader) {
 		String realm = responseAuthHeader.getRealm();
 
-		ListIterator<Header> authHeaderIterator =
-			message.getHeaders(AuthorizationHeader.NAME);
+		ListIterator<Header> authHeaderIterator = (ListIterator) message.getHeaders(AuthorizationHeader.NAME);
 		if(authHeaderIterator.hasNext()) {
 			message.removeHeader(AuthorizationHeader.NAME);
 			while(authHeaderIterator.hasNext()) {

@@ -1,0 +1,27 @@
+package org.mobicents.servlet.sip.core;
+
+import gov.nist.javax.sip.ListeningPointExt;
+import java.util.*;
+import javax.sip.*;
+import org.apache.log4j.Logger;
+import org.mobicents.servlet.sip.SipConnector;
+
+public class SipNetworkInterfaceManagerImpl {
+    private static final Logger logger = Logger.getLogger(SipNetworkInterfaceManagerImpl.class);
+    private final SipApplicationDispatcherImpl dispatcher;
+    private Map<String, SipConnector> connectors = new HashMap<>();
+    
+    public SipNetworkInterfaceManagerImpl(SipApplicationDispatcherImpl dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+    
+    public SipConnector findSipConnector(String transport) { return connectors.get(transport); }
+    public SipConnector[] findSipConnectors() { return connectors.values().toArray(new SipConnector[0]); }
+    public void addConnector(SipConnector c) { connectors.put(c.getTransport(), c); }
+    public ListeningPointExt findListeningPoint(String transport) { return null; }
+    public SipProvider findSipProvider(String transport) { return null; }
+    public void addSipProvider(SipProvider provider, String transport) {}
+    public void start() {}
+    public void stop() {}
+    public boolean isLocal(String host, int port, String transport) { return false; }
+}

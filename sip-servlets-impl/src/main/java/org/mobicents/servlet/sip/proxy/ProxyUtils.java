@@ -307,7 +307,7 @@ public class ProxyUtils {
 				if(!inboundTransport.equalsIgnoreCase(outboundTransport)) {
 					javax.sip.address.SipURI inboundRURI = JainSipUtils.createRecordRouteURI(sipFactoryImpl.getSipNetworkInterfaceManager(), clonedRequest, inboundTransport);
 					if(originalRequest.getTransport() != null) inboundRURI.setTransportParam(originalRequest.getTransport());
-					final Iterator<String> paramNames = routeRecord.getParameterNames();
+					final Iterator<String> paramNames = (Iterator) routeRecord.getParameterNames();
 					// Copy the parameters set by the user
 					while(paramNames.hasNext()) {
 						String paramName = paramNames.next();
@@ -352,7 +352,7 @@ public class ProxyUtils {
 					rrURI.setTransportParam(outboundTransport);
 				}
 				
-				final Iterator<String> paramNames = routeRecord.getParameterNames();
+				final Iterator<String> paramNames = (Iterator) routeRecord.getParameterNames();
 				
 				// Copy the parameters set by the user
 				while(paramNames.hasNext()) {
@@ -384,7 +384,7 @@ public class ProxyUtils {
 			{
 				final javax.sip.address.SipURI pathURI = JainSipUtils.createRecordRouteURI(sipFactoryImpl.getSipNetworkInterfaceManager(), clonedRequest);
 
-				final Iterator<String> paramNames = path.getParameterNames();				
+				final Iterator<String> paramNames = (Iterator) path.getParameterNames();				
 				// Copy the parameters set by the user
 				while(paramNames.hasNext()) {
 					String paramName = paramNames.next();
@@ -439,7 +439,7 @@ public class ProxyUtils {
 		}
 			
 		// 2. Remove topmost via
-		final Iterator<ViaHeader> viaHeaderIt = clonedResponse.getHeaders(ViaHeader.NAME);
+		final Iterator<ViaHeader> viaHeaderIt = (Iterator) clonedResponse.getHeaders(ViaHeader.NAME);
 		viaHeaderIt.next();
 		viaHeaderIt.remove();
 		if (!viaHeaderIt.hasNext()) {

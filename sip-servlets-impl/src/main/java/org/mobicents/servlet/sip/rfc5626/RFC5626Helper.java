@@ -102,7 +102,7 @@ public class RFC5626Helper {
 			//RFC 5626 Section 5.1. Processing Register Requests			
 			if(contactHeader != null && contactHeader.getParameter(MessageDispatcher.SIP_OUTBOUND_PARAM_REG_ID) != null) {
 				int nbVias = 0;
-				ListIterator<ViaHeader> vias = request.getHeaders(ViaHeader.NAME);
+				ListIterator<ViaHeader> vias = (ListIterator) request.getHeaders(ViaHeader.NAME);
 				while (vias.hasNext() && nbVias <= 2) {
 					vias.next();
 					nbVias++;

@@ -471,7 +471,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 				// Fix for Issue 1130 (http://code.google.com/p/mobicents/issues/detail?id=1130) :
 				// NullPointerException when sending request to client which support both UDP and TCP transport
 				// before removing the via header we store the transport into its app data
-				ListIterator<ViaHeader> viaHeaders = methodRequest.getHeaders(ViaHeader.NAME);
+				ListIterator<ViaHeader> viaHeaders = (ListIterator) methodRequest.getHeaders(ViaHeader.NAME);
 				if(viaHeaders != null && viaHeaders.hasNext()) {
 					ViaHeader viaHeader = viaHeaders.next();
 					((MessageExt)methodRequest).setApplicationData(viaHeader.getTransport());
@@ -539,7 +539,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 					// Fix for Issue 1130 (http://code.google.com/p/mobicents/issues/detail?id=1130) :
 					// NullPointerException when sending request to client which support both UDP and TCP transport
 					// before removing the ViaHeader we store the transport into its app data
-					ListIterator<ViaHeader> viaHeaders = request.getHeaders(ViaHeader.NAME);
+					ListIterator<ViaHeader> viaHeaders = (ListIterator) request.getHeaders(ViaHeader.NAME);
 					if(viaHeaders != null && viaHeaders.hasNext()) {
 						ViaHeader viaHeader = viaHeaders.next();
 						((MessageExt)request).setApplicationData(viaHeader.getTransport());
@@ -609,7 +609,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 						final Request request = ((Request)sipServletRequest.getMessage());
 						sipServletRequest.getSipSession().setCseq(((CSeqHeader)request.getHeader(CSeqHeader.NAME)).getSeqNumber());
 						final Map<String, String> fromParameters = new HashMap<String, String>();
-						final Iterator<String> fromParameterNames = fromHeader.getParameterNames();
+						final Iterator<String> fromParameterNames = (Iterator) fromHeader.getParameterNames();
 						while (fromParameterNames.hasNext()) {
 							String parameterName = (String) fromParameterNames.next();
 							if(sessionCreatingDialog != null || !SipFactoryImpl.FORBIDDEN_PARAMS.contains(parameterName)) {
@@ -617,7 +617,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 							}
 						}
 						final Map<String, String> toParameters = new HashMap<String, String>();
-						final Iterator<String> toParameterNames = toHeader.getParameterNames();
+						final Iterator<String> toParameterNames = (Iterator) toHeader.getParameterNames();
 						while (toParameterNames.hasNext()) {
 							String parameterName = (String) toParameterNames.next();
 							if(sessionCreatingDialog != null || !SipFactoryImpl.FORBIDDEN_PARAMS.contains(parameterName)) {
@@ -681,7 +681,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 		//avoid going through the same app that created the subsequent request
 
 		Request request = (Request) sipServletRequest.getMessage();
-		final ListIterator<RouteHeader> routeHeaders = request.getHeaders(RouteHeader.NAME);
+		final ListIterator<RouteHeader> routeHeaders = (ListIterator) request.getHeaders(RouteHeader.NAME);
 		request.removeHeader(RouteHeader.NAME);
 		while (routeHeaders.hasNext()) {
 			RouteHeader routeHeader = routeHeaders.next();
@@ -1390,7 +1390,7 @@ public class SipSessionImpl implements MobicentsSipSession {
 		SipContext sipContext = getSipApplicationSession().getSipContext();
 		MobicentsSipServlet container = sipContext.findSipServletByName(name);
 
-		if(container == null && sipContext.getSipRubyController() == null) {
+		if(container == null) {
 			throw new ServletException("the sip servlet with the name "+ name +
 					" doesn't exist in the sip application " + sipContext.getApplicationName());
 		}
@@ -1400,7 +1400,6 @@ public class SipSessionImpl implements MobicentsSipSession {
 			if(name !=null) {
 				logger.debug("Session Handler for application " + getKey().getApplicationName() + " set to " + handlerServlet + " on sip session " + key);
 			} else {
-				logger.debug("Session Handler for application " + getKey().getApplicationName() + " set to " + sipContext.getSipRubyController() + " on sip session " + key);
 			}
 		}
 	}

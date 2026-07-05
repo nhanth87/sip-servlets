@@ -537,7 +537,7 @@ public class InitialRequestDispatcher extends RequestDispatcher {
 		int port = sipRequestUri.getPort();
 		String transport = JainSipUtils.findTransport(request);
 		boolean isAnotherDomain = sipApplicationDispatcher.isExternal(host, port, transport);			
-		ListIterator<String> routeHeaders = sipServletRequest.getHeaders(RouteHeader.NAME);				
+		ListIterator<String> routeHeaders = (ListIterator) sipServletRequest.getHeaders(RouteHeader.NAME);				
 		if(isAnotherDomain || routeHeaders.hasNext()) {
 			try {
 				forwardRequestStatefully(sipServletRequest, SipSessionRoutingType.PREVIOUS_SESSION, SipRouteModifier.NO_ROUTE);
@@ -813,7 +813,7 @@ public class InitialRequestDispatcher extends RequestDispatcher {
 						sipSessionHandlerName = mainServlet;				
 					} else {
 						MobicentsSipServletMapping sipServletMapping = sipContext.findSipServletMappings(sipServletRequest);
-						if(sipServletMapping == null && sipContext.getSipRubyController() == null) {
+						if(sipServletMapping == null) {
 							if(logger.isInfoEnabled()) {
 								logger.info("Sending 404 because no matching servlet found for this request " + sipServletRequest);
 							}

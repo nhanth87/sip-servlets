@@ -258,7 +258,7 @@ public abstract class MessageDispatcher {
 			servletHandler = mainServlet;				
 		} else {
 			MobicentsSipServletMapping sipServletMapping = sipContext.findSipServletMappings(request);
-			if(sipServletMapping == null && sipContext.getSipRubyController() == null) {
+			if(sipServletMapping == null) {
 				logger.error("Sending 404 because no matching servlet found for this request ");
 				throw new DispatcherException(Response.NOT_FOUND);
 			} else if(sipServletMapping != null) {							
@@ -390,23 +390,6 @@ public abstract class MessageDispatcher {
 			} finally {
 				sipContext.exitSipContext(oldClassLoader);
 			}
-		} else if(sipContext.getSipRubyController() != null) {
-			//handling the ruby case
-			if(logger.isDebugEnabled()) {
-				logger.debug("Dispatching request " + request.toString() + 
-					" to following App/ruby controller => " + request.getSipSession().getKey().getApplicationName()+ 
-					"/" + sipContext.getSipRubyController().getName());
-			}
-			
-			final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-			try {
-				final ClassLoader cl = sipContext.getSipContextClassLoader();
-				Thread.currentThread().setContextClassLoader(cl);
-			
-				sipContext.getSipRubyController().routeSipMessageToRubyApp(sipContext.getServletContext(), request);
-			} finally {
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
-			}
 		} else {
 			logger.error("no handler found for sip session " + session.getKey() + " and request " + request);
 			// Issue 1493 : under some race condition the transaction might not be added to the sip session
@@ -441,24 +424,7 @@ public abstract class MessageDispatcher {
 		final MobicentsSipServlet sipServletImpl = (MobicentsSipServlet) sipContext.findSipServletByName(sessionHandler);
 		
 		if(sipServletImpl == null || sipServletImpl.isUnavailable()) {
-			if(sipContext.getSipRubyController() != null) {
-				//handling the ruby case	
-				if(logger.isDebugEnabled()) {
-					logger.debug("Dispatching response " + response.toString() + 
-						" to following App/ruby controller => " + response.getSipSession().getKey().getApplicationName()+ 
-						"/" + sipContext.getSipRubyController().getName());
-				}
-				final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-			
-				try {
-					final ClassLoader cl = sipContext.getSipContextClassLoader();
-					Thread.currentThread().setContextClassLoader(cl);
-				
-					sipContext.getSipRubyController().routeSipMessageToRubyApp(sipContext.getServletContext(), response);
-				} finally {
-					Thread.currentThread().setContextClassLoader(oldClassLoader);
-				}
-			} else {
+			{
 				logger.warn(sessionHandler + " is unavailable, dropping response " + response);
 			}
 		} else {

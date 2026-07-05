@@ -39,7 +39,6 @@ import org.mobicents.servlet.sip.core.session.MobicentsSipSession;
 import org.mobicents.servlet.sip.core.session.MobicentsSipSessionsUtil;
 import org.mobicents.servlet.sip.core.timers.ProxyTimerService;
 import org.mobicents.servlet.sip.core.timers.SipApplicationSessionTimerService;
-import org.mobicents.servlet.sip.ruby.SipRubyController;
 
 /**
  * A <b>SipContext</b> is a Container that represents a sip/converged servlet context, and
@@ -165,8 +164,6 @@ public interface SipContext {
 	void setConcurrencyControlMode(ConcurrencyControlMode mode);
 	ConcurrencyControlMode getConcurrencyControlMode();
 
-	void setSipRubyController(SipRubyController rubyController);
-	SipRubyController getSipRubyController();
 
 	ServletContext getServletContext();
 	String getPath();

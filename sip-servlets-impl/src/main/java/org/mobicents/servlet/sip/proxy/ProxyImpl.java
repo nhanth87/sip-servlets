@@ -251,7 +251,7 @@ public class ProxyImpl implements MobicentsProxy, Externalizable {
 					return ((javax.sip.address.SipURI) rrh.getAddress().getURI()).toString();
 //					uri = new SipURIImpl(sipUri, ModifiableRule.NotModifiable);
 				} else { 
-					ListIterator<ViaHeader> viaHeaders = request.getMessage().getHeaders(ViaHeader.NAME);
+					ListIterator<ViaHeader> viaHeaders = (ListIterator) request.getMessage().getHeaders(ViaHeader.NAME);
 					ViaHeader lastVia = null;
 					while(viaHeaders.hasNext()) {
 						lastVia = viaHeaders.next();
@@ -680,8 +680,7 @@ public class ProxyImpl implements MobicentsProxy, Externalizable {
 				&& recurse)
 		{
 			// We may want to store these for "moved permanently" and others
-			ListIterator<Header> headers = 
-				response.getMessage().getHeaders(ContactHeader.NAME);
+			ListIterator<Header> headers = (ListIterator) response.getMessage().getHeaders(ContactHeader.NAME);
 			while(headers.hasNext()) {
 				final ContactHeader contactHeader = (ContactHeader) headers.next();
 				final javax.sip.address.URI addressURI = contactHeader.getAddress().getURI();

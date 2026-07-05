@@ -749,7 +749,7 @@ public class SipFactoryImpl implements MobicentsSipFactory,  Externalizable {
 
 			// copying address params into headers.
 			// commented out because of Issue 1105
-//			Iterator<String> keys = to.getParameterNames();
+//			Iterator<String> keys = (Iterator) to.getParameterNames();
 //
 //			while (keys.hasNext()) {
 //				String key = keys.next();				

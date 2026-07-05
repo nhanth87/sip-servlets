@@ -270,7 +270,7 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
                 for (String contactHeaderValue : contactHeaderSet) {
                     newSipServletRequest.addHeaderInternal(ContactHeader.NAME, contactHeaderValue, true);
                 }
-                ListIterator<ContactHeader> contactHeaders = newSipServletRequest.getMessage().getHeaders(ContactHeader.NAME);
+                ListIterator<ContactHeader> contactHeaders = (ListIterator) newSipServletRequest.getMessage().getHeaders(ContactHeader.NAME);
                 while (contactHeaders.hasNext()) {
                     final URI contactURI = contactHeaders.next().getAddress().getURI();
                     // and reset its user part and params accoridng to 4.1.3 The Contact Header Field
@@ -485,7 +485,7 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
             SipServletRequestImpl newSubsequentServletRequest) {
         final Message origMessage = origRequestImpl.getMessage();
         final Message subsequentMessage = newSubsequentServletRequest.getMessage();
-        ListIterator<String> headerNames = origMessage.getHeaderNames();
+        ListIterator<String> headerNames = (ListIterator) origMessage.getHeaderNames();
         while (headerNames.hasNext()) {
             String headerName = headerNames.next();
             if (!JainSipUtils.SYSTEM_HEADERS.contains(headerName) && !headerName.equalsIgnoreCase(ContactHeader.NAME)
@@ -493,8 +493,8 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
                 // Issue 184 : http://code.google.com/p/sipservlets/issues/detail?id=184
                 // Not all headers are copied for subsequent requests using B2buaHelper.createRequest(session, request, map)
                 // Fix by Alexander Saveliev, iterate through all headers and copy them
-                ListIterator<Header> origHeaderIt = origMessage.getHeaders(headerName);
-                ListIterator<Header> subsHeaderIt = subsequentMessage.getHeaders(headerName);
+                ListIterator<Header> origHeaderIt = (ListIterator) origMessage.getHeaders(headerName);
+                ListIterator<Header> subsHeaderIt = (ListIterator) subsequentMessage.getHeaders(headerName);
                 while (origHeaderIt.hasNext()) {
                     HeaderExt origHeader = (HeaderExt) origHeaderIt.next();
                     // Issue http://code.google.com/p/mobicents/issues/detail?id=2094
@@ -556,7 +556,7 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
         // we set up a list of contact headers to be added to the request
         List<ContactHeader> newContactHeaders = new ArrayList<ContactHeader>();
 
-        ListIterator<ContactHeader> contactHeaders = newRequest.getHeaders(ContactHeader.NAME);
+        ListIterator<ContactHeader> contactHeaders = (ListIterator) newRequest.getHeaders(ContactHeader.NAME);
         while (contactHeaders.hasNext()) {
             // we clone the default Mobicents Sip Servlets Contact Header
             ContactHeader newContactHeader = (ContactHeader) contactHeader.clone();
@@ -569,7 +569,7 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
                 SipURI newSipURI = (SipURI) newURI;
                 SipURI newContactSipURI = (SipURI) newContactHeader.getAddress().getURI();
                 ((SipURI) newContactHeader.getAddress().getURI()).setUser(newSipURI.getUser());
-                Iterator<String> uriParameters = newSipURI.getParameterNames();
+                Iterator<String> uriParameters = (Iterator) newSipURI.getParameterNames();
                 while (uriParameters.hasNext()) {
                     String parameter = uriParameters.next();
                     if (!CONTACT_FORBIDDEN_PARAMETER.contains(parameter)) {
@@ -579,7 +579,7 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
                 }
             }
             // reset the header params according to 4.1.3 The Contact Header Field
-            Iterator<String> headerParameters = newRequestContactHeader.getParameterNames();
+            Iterator<String> headerParameters = (Iterator) newRequestContactHeader.getParameterNames();
             while (headerParameters.hasNext()) {
                 String parameter = headerParameters.next();
                 String value = newRequestContactHeader.getParameter(parameter);
@@ -596,12 +596,12 @@ public class B2buaHelperImpl implements MobicentsB2BUAHelper, Serializable {
     }
 
     private void stripForbiddenContactURIParams(SipURI contactURI) {
-        Iterator<String> uriParameters = contactURI.getParameterNames();
+        Iterator<String> uriParameters = (Iterator) contactURI.getParameterNames();
         while (uriParameters.hasNext()) {
             String parameter = uriParameters.next();
             if (CONTACT_FORBIDDEN_PARAMETER.contains(parameter)) {
                 contactURI.removeParameter(parameter);
-                uriParameters = contactURI.getParameterNames();
+                uriParameters = (Iterator) contactURI.getParameterNames();
             }
         }
     }

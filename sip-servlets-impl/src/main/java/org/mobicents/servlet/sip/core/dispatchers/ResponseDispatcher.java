@@ -101,7 +101,7 @@ public class ResponseDispatcher extends MessageDispatcher {
 		final SipFactoryImpl sipFactoryImpl = (SipFactoryImpl) sipApplicationDispatcher.getSipFactory();
 		final SipServletResponseImpl sipServletResponse = (SipServletResponseImpl) sipServletMessage;
 		final Response response = sipServletResponse.getResponse();
-		final ListIterator<ViaHeader> viaHeaders = response.getHeaders(ViaHeader.NAME);				
+		final ListIterator<ViaHeader> viaHeaders = (ListIterator) response.getHeaders(ViaHeader.NAME);				
 		final ViaHeader viaHeader = viaHeaders.next();
 		final String branch = viaHeader.getBranch();
 		if(logger.isDebugEnabled()) {
@@ -582,7 +582,7 @@ public class ResponseDispatcher extends MessageDispatcher {
 	 */
 	private final void forwardResponseStatefully(final SipServletResponseImpl sipServletResponse) {
 		final Response response = sipServletResponse.getResponse();
-		final ListIterator<ViaHeader> viaHeadersLeft = response.getHeaders(ViaHeader.NAME);
+		final ListIterator<ViaHeader> viaHeadersLeft = (ListIterator) response.getHeaders(ViaHeader.NAME);
 		// we cannot remove the via header on the original response (and we don't to proactively clone the response for perf reasons)
 		// otherwise it will make subsequent request creation fails (because JSIP dialog check the topmostviaHeader of the response)
 		if(viaHeadersLeft.hasNext()) {

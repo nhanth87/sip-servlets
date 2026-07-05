@@ -80,7 +80,7 @@ public class AddressImpl extends ParameterableImpl implements Address {
 		// duplicate parameters when using sipFactory.createAddress(uri) with a uri having parameters 
 //		if(this.address.getURI() instanceof Parameters) {
 //			Parameters uri = (Parameters) this.address.getURI();
-//			Iterator<String> parameterNames = uri.getParameterNames();
+//			Iterator<String> parameterNames = (Iterator) uri.getParameterNames();
 //			while (parameterNames.hasNext()) {
 //				String parameterName = (String) parameterNames.next();
 //				String value = uri.getParameter(parameterName);
@@ -392,7 +392,7 @@ public class AddressImpl extends ParameterableImpl implements Address {
 	
 	public static final Map<String, String> getParameters(Parameters headerParams) {
 		Map<String, String> params = new HashMap<String, String>();
-		Iterator<String> parameterNames = headerParams.getParameterNames();			
+		Iterator<String> parameterNames = (Iterator) headerParams.getParameterNames();			
 		while (parameterNames.hasNext()) {
 			String name = (String) parameterNames.next();
 			String value = null;

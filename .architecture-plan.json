@@ -1,0 +1,485 @@
+{
+  "version": "2.0",
+  "generated": "2025-07-18T00:00:00Z",
+  "workspace": "/home/meodien/orca/workspaces/sip-servlets/j25",
+  "modules_to_remove": {
+    "summary": "Modules identified for removal based on EOL containers, irrelevant features (JRuby), and heavy test infrastructure",
+    "modules": [
+      {
+        "path": "sip-servlets-jruby",
+        "reason": "JRuby SIP controller support \u2014 irrelevant for Java-25 target. Removes dependency on JRuby runtime.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/tomcat-7",
+        "reason": "Apache Tomcat 7 \u2014 EOL since 2021. Not compatible with Java 25.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/tomcat-8",
+        "reason": "Apache Tomcat 8 \u2014 EOL. Replaced by embedded Netty/Undertow in Quarkus/Spring Boot.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-catalina-7",
+        "reason": "Catalina 7 container integration \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-catalina-8",
+        "reason": "Catalina 8 container integration \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as7",
+        "reason": "JBoss AS7 integration \u2014 EOL (2014).",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as7-drop-in",
+        "reason": "JBoss AS7 drop-in deployment \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as8",
+        "reason": "WildFly 8 integration \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as8-drop-in",
+        "reason": "WildFly 8 drop-in deployment \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as10",
+        "reason": "WildFly 10 \u2014 EOL. Keep as reference but remove from compact build.",
+        "risk": "LOW"
+      },
+      {
+        "path": "containers/sip-servlets-as10-drop-in",
+        "reason": "WildFly 10 drop-in \u2014 EOL.",
+        "risk": "LOW"
+      },
+      {
+        "path": "sip-servlets-arquillian-testsuite",
+        "reason": "Arquillian tests \u2014 heavy, depends on removed containers. Replace with JUnit 5 + Embedded SIP.",
+        "risk": "MEDIUM"
+      },
+      {
+        "path": "sip-servlets-test-suite/tck",
+        "reason": "JSR 289 TCK \u2014 heavyweight compliance suite.",
+        "risk": "LOW"
+      },
+      {
+        "path": "build/jsr289-tck",
+        "reason": "TCK build infrastructure.",
+        "risk": "LOW"
+      },
+      {
+        "path": "build/jsr289-apidocs",
+        "reason": "Pre-built JSR 289 javadoc. Generate on demand.",
+        "risk": "LOW"
+      },
+      {
+        "path": "management/sip-servlets-management",
+        "reason": "JMX management. Adopt Micrometer + Prometheus for Quarkus/Spring Boot.",
+        "risk": "MEDIUM"
+      }
+    ],
+    "examples_to_keep": [
+      "shootist-sip-servlet",
+      "simple-sip-servlet",
+      "proxy-sip-servlet"
+    ],
+    "code_cleanup": [
+      {
+        "file": "dispatchers/MessageDispatcher.java",
+        "lines": "393-409",
+        "desc": "Remove SipRubyController routing in callServlet(request)"
+      },
+      {
+        "file": "dispatchers/MessageDispatcher.java",
+        "lines": "443-461",
+        "desc": "Remove SipRubyController routing in callServlet(response)"
+      },
+      {
+        "file": "dispatchers/InitialRequestDispatcher.java",
+        "line": 261,
+        "desc": "Remove sipContext.getSipRubyController() null check"
+      },
+      {
+        "file": "dispatchers/InitialRequestDispatcher.java",
+        "line": 816,
+        "desc": "Remove getSipRubyController() null check"
+      }
+    ]
+  },
+  "timer_architecture": {
+    "summary": "Full timer dependency graph and jSS7 HashedWheelTimer replacement",
+    "current_backend": "ScheduledThreadPoolExecutor (4 threads, NamingThreadFactory(applicationName + _sip_default_sas_timer_service))",
+    "current_classes": {
+      "SipServletTimerService": "core-api interface extending javax.servlet.sip.TimerService + Serializable",
+      "TimerServiceImpl": "impl class \u2014 wraps ScheduledThreadPoolExecutor, creates ServletTimerImpl, start()/stop() lifecycle",
+      "ServletTimerImpl": "implements Runnable + MobicentsServletTimer, holds ScheduledFuture<?> future, invokes TimerListener.timeout(this) on fire",
+      "ProxyTimerServiceImpl": "extends java.util.Timer \u2014 different pattern for proxy branch timers",
+      "MobicentsServletTimer": "core-api interface extending ServletTimer, adds cancel(boolean,boolean)"
+    },
+    "dependency_graph": {
+      "javax.servlet.sip.TimerService": {
+        "extended_by": "SipServletTimerService (core-api interface)",
+        "implemented_by": "TimerServiceImpl (impl class)",
+        "wraps": "ScheduledThreadPoolExecutor (JDK)",
+        "creates": "ServletTimerImpl extends ServletTimer implements Runnable",
+        "lifecycle": "start() \u2192 prestartAllCoreThreads(), stop() \u2192 shutdownNow()",
+        "purge": "scheduleWithFixedDelay(purgeTask, purgePeriod, purgePeriod, MINUTES)"
+      }
+    },
+    "target_architecture": {
+      "backend": "io.netty.util.HashedWheelTimer via HashedWheelTimerFacade",
+      "thread_factory": "Thread.ofVirtual().factory() (Java 25 VTs)",
+      "tick_duration": "100ms",
+      "wheel_size": 512,
+      "approach": "Replace internals of TimerServiceImpl \u2014 keep public API identical. Replace ScheduledFuture<?> with io.netty.util.Timeout in ServletTimerImpl."
+    },
+    "jss7_source_files_to_copy": {
+      "source_root": "/home/meodien/orca/workspaces/jain-slee/micro-jainslee-2/jainslee-scheduler/src/main/java/org/restcomm/protocols/ss7/scheduler",
+      "target_package": "org.mobicents.servlet.sip.core.timers.jss7",
+      "files": [
+        {
+          "source": "api/TimerScheduler.java",
+          "target": "jss7/api/TimerScheduler.java",
+          "lines": 31,
+          "desc": "Core scheduler interface \u2014 schedule/cancel/cancelAll"
+        },
+        {
+          "source": "api/TimerHandle.java",
+          "target": "jss7/api/TimerHandle.java",
+          "lines": 28,
+          "desc": "Handle for scheduled timer \u2014 cancel/isCancelled/hasFired"
+        },
+        {
+          "source": "api/TimerCallback.java",
+          "target": "jss7/api/TimerCallback.java",
+          "lines": 25,
+          "desc": "@FunctionalInterface \u2014 onTimerFire(TimerRecord)"
+        },
+        {
+          "source": "api/TimerRecord.java",
+          "target": "jss7/api/TimerRecord.java",
+          "lines": 73,
+          "desc": "Serializable timer metadata"
+        },
+        {
+          "source": "api/TimerType.java",
+          "target": "jss7/api/TimerType.java",
+          "lines": 43,
+          "desc": "Timer category enum \u2014 extend with SIP_SERVLET_TIMER, SIP_SESSION_TIMER, SIP_APP_SESSION_TIMER"
+        },
+        {
+          "source": "impl/HashedWheelTimerFacade.java",
+          "target": "jss7/impl/HashedWheelTimerFacade.java",
+          "lines": 81,
+          "desc": "Thin facade over io.netty.util.HashedWheelTimer \u2014 THE CORE FILE",
+          "dep": "io.netty:netty-common:4.1.100.Final"
+        },
+        {
+          "source": "impl/LocalTimerAdapter.java",
+          "target": "jss7/impl/LocalTimerAdapter.java",
+          "lines": 184,
+          "desc": "Full TimerScheduler impl with ConcurrentHashMap tracking + dialog-scoped cancelAll",
+          "note": "Replace log4j LogManager with SLF4J"
+        },
+        {
+          "source": "impl/LocalTimerHandle.java",
+          "target": "jss7/impl/LocalTimerHandle.java",
+          "lines": 62,
+          "desc": "CAS-based handle \u2014 safe cancel\u2192fire state transitions"
+        },
+        {
+          "source": "impl/NoOpTimerAdapter.java",
+          "target": "jss7/impl/NoOpTimerAdapter.java",
+          "lines": 62,
+          "desc": "No-op adapter for unit tests"
+        }
+      ],
+      "maven_dep": {
+        "groupId": "io.netty",
+        "artifactId": "netty-common",
+        "version": "4.1.100.Final"
+      }
+    },
+    "servlet_timer_impl_changes": [
+      {
+        "field": "ScheduledFuture<?> future",
+        "replace_with": "io.netty.util.Timeout timeout"
+      },
+      {
+        "method": "setFuture(ScheduledFuture<?>)",
+        "replace_with": "setTimeout(Timeout)"
+      },
+      {
+        "method": "run() \u2014 repeating timers",
+        "change": "Re-schedule via timer.newTimeout(this, period, MILLISECONDS) at end of run(), replacing scheduleAtFixedRate/scheduleWithFixedDelay"
+      },
+      {
+        "method": "cancel()",
+        "change": "timeout.cancel() instead of future.cancel(true)"
+      },
+      {
+        "method": "canRun()",
+        "change": "timeout != null && !timeout.isCancelled() instead of future checks"
+      }
+    ]
+  },
+  "lmax_disruptor_integration": {
+    "summary": "LMAX Disruptor RingBuffer replaces ExecutorService for SIP message dispatching. Virtual Threads for per-message processing.",
+    "current_flow": [
+      "1. JAIN SIP Listener \u2192 SipApplicationDispatcherImpl.processRequest(RequestEvent)",
+      "2. Creates SipServletRequestImpl, checks congestion, strips route headers",
+      "3. MessageDispatcherFactory.getRequestDispatcher() \u2192 InitialRequestDispatcher / SubsequentRequestDispatcher / CancelRequestDispatcher",
+      "4. Dispatcher.dispatchMessage() locates SipSession, creates DispatchTask(Runnable)",
+      "5. sipContext.enterSipApp() acquires concurrency semaphore",
+      "6. getConcurrencyModelExecutorService().execute(dispatchTask) \u2192 asynchronousExecutor (ThreadPoolExecutor + LinkedBlockingQueue)",
+      "7. DispatchTask.run() \u2192 dispatchAndHandleExceptions() \u2192 dispatch() \u2192 callServlet() \u2192 servlet.service(request,null)",
+      "8. sipContext.exitSipApp() releases semaphore + triggers HA replication"
+    ],
+    "bottlenecks": [
+      "LinkedBlockingQueue head-of-line blocking under load",
+      "ThreadPoolExecutor contention at 64 max threads",
+      "No message prioritization (CANCEL competes with INVITE for executor slots)",
+      "bypassRequestExecutor=true skips executor entirely (already default) \u2014 direct-thread processing"
+    ],
+    "target_architecture": {
+      "ringbuffer": {
+        "class": "com.lmax.disruptor.dsl.Disruptor<SipMessageEvent>",
+        "ring_size": 32768,
+        "producer_type": "SINGLE",
+        "wait_strategy": "BusySpinWaitStrategy",
+        "thread_factory": "Thread.ofVirtual().factory()"
+      },
+      "event_class": {
+        "name": "SipMessageEvent",
+        "fields": [
+          "MessageType type: INITIAL_REQUEST | SUBSEQUENT_REQUEST | CANCEL_REQUEST | RESPONSE | DIALOG_TIMEOUT | TRANSACTION_TIMEOUT",
+          "SipServletMessageImpl message",
+          "SipProvider sipProvider",
+          "long sequence",
+          "long publishTimestamp"
+        ]
+      },
+      "handlers": [
+        {
+          "name": "InitialRequestEventHandler",
+          "routes_to": "InitialRequestDispatcher.dispatchMessage()",
+          "vt_exec": "Thread.startVirtualThread(() -> legacyDispatch())"
+        },
+        {
+          "name": "SubsequentCancelEventHandler",
+          "routes_to": "SubsequentRequestDispatcher / CancelRequestDispatcher",
+          "vt_exec": "Thread.startVirtualThread(() -> legacyDispatch())"
+        },
+        {
+          "name": "ResponseEventHandler",
+          "routes_to": "ResponseDispatcher.dispatchMessage()",
+          "vt_exec": "Thread.startVirtualThread(() -> legacyDispatch())"
+        }
+      ],
+      "pipeline": "disruptor.handleEventsWith(initHandler, subCancelHandler).then(responseHandler)",
+      "integration_points": [
+        {
+          "file": "SipApplicationDispatcherImpl.java",
+          "method": "processRequest(RequestEvent) line 836",
+          "change": "Publish SipMessageEvent to RingBuffer instead of calling messageDispatcherFactory.getRequestDispatcher().dispatchMessage() directly"
+        },
+        {
+          "file": "SipApplicationDispatcherImpl.java",
+          "method": "processResponse(ResponseEvent) line 1176",
+          "change": "Publish RESPONSE event to RingBuffer"
+        },
+        {
+          "file": "SipApplicationDispatcherImpl.java",
+          "methods": [
+            "processTimeout",
+            "processDialogTerminated",
+            "processTransactionTerminated"
+          ],
+          "change": "Publish TIMEOUT events for out-of-band processing on VTs"
+        }
+      ]
+    },
+    "concurrency_control_preservation": "Keep sipContext.enterSipApp()/exitSipApp() semaphore inside the Virtual Thread. Disruptor only replaces ExecutorService submission, NOT session-level locking.",
+    "maven_dep": {
+      "groupId": "com.lmax",
+      "artifactId": "disruptor",
+      "version": "3.4.4"
+    }
+  },
+  "virtual_threads_processing": {
+    "summary": "Java 25 Virtual Threads replace ThreadPoolExecutor for SIP message processing \u2014 one VT per message, scalable to millions of concurrent calls.",
+    "key_decisions": [
+      {
+        "decision": "VT per message, not VT pool",
+        "rationale": "VTs are designed for one-task-per-thread. ~200 bytes heap each. No pooling needed."
+      },
+      {
+        "decision": "VT factory for Disruptor event handlers",
+        "rationale": "3 handler VTs constantly reading from RingBuffer. Each message dispatch is also a VT."
+      },
+      {
+        "decision": "VT factory for HashedWheelTimer",
+        "rationale": "Timer callbacks (ServletTimerImpl.run()) execute on VT \u2014 no thread pool starvation."
+      },
+      {
+        "decision": "ScopedValue replaces ThreadLocal",
+        "rationale": "For SipApplicationSession/SipSession/SipContext bindings throughout call chain."
+      }
+    ],
+    "vt_usage_locations": [
+      {
+        "location": "Disruptor EventHandlers",
+        "factory": "Thread.ofVirtual().name('sip-disruptor-', 0).factory()"
+      },
+      {
+        "location": "Timer callbacks (ServletTimerImpl.run)",
+        "factory": "Thread.ofVirtual().name('sip-timer-', 0).factory()"
+      },
+      {
+        "location": "Per-message servlet.service() call",
+        "code": "Thread.startVirtualThread(() -> callServlet(request))"
+      },
+      {
+        "location": "Transaction timeout handling",
+        "code": "Publish to Disruptor with VT processing"
+      }
+    ],
+    "scoped_values_migration": {
+      "replaces": [
+        "SipApplicationSessionCreationThreadLocal",
+        "SipContext.enterSipContext()/exitSipContext() ClassLoader switching"
+      ],
+      "new_pattern": "ScopedValue.where(SIP_CONTEXT_KEY, sipContext).run(() -> { ... })"
+    },
+    "risk_vt_pin": "Convert synchronized blocks in SipContext semaphore path to ReentrantLock to avoid VT pinning."
+  },
+  "extensions": {
+    "quarkus": {
+      "module": "sip-servlets-quarkus",
+      "classes": [
+        {
+          "name": "SipServletsExtension",
+          "extends": "QuarkusApplication",
+          "desc": "Bootstrap SipApplicationDispatcherImpl, start SIP stack, register shutdown hook"
+        },
+        {
+          "name": "SipServletsConfig",
+          "annotations": "@ConfigMapping(prefix = sip-servlets)",
+          "props": [
+            "port",
+            "tcp-port",
+            "outbound-proxy",
+            "disruptor.ring-size",
+            "timer.tick-duration-ms",
+            "timer.wheel-size"
+          ]
+        },
+        {
+          "name": "SipContainer",
+          "annotations": "@ApplicationScoped",
+          "desc": "CDI singleton wrapping dispatcher lifecycle"
+        },
+        {
+          "name": "SipFactoryProducer",
+          "annotations": "@Produces @ApplicationScoped",
+          "desc": "Produce SipFactory, SipSessionsUtil, TimerService as CDI beans"
+        }
+      ],
+      "native_notes": "LMAX Disruptor uses sun.misc.Unsafe \u2014 register for reflection. Netty native transport registration needed. Recommend JVM mode for production."
+    },
+    "spring_boot": {
+      "module": "sip-servlets-spring-boot",
+      "classes": [
+        {
+          "name": "SipServletsAutoConfiguration",
+          "annotations": "@AutoConfiguration @ConditionalOnClass(SipApplicationDispatcher.class)",
+          "desc": "Auto-configure dispatcher, register SipListener"
+        },
+        {
+          "name": "SipServletsProperties",
+          "annotations": "@ConfigurationProperties(prefix = sip-servlets)",
+          "props": [
+            "enabled",
+            "port",
+            "tcp-port",
+            "outbound-proxy",
+            "disruptor.ring-size",
+            "virtual-threads.enabled"
+          ]
+        }
+      ]
+    }
+  },
+  "performance_targets": {
+    "throughput": "50,000+ SIP msg/sec (10x current)",
+    "p99_latency": "< 1ms for stateless proxy",
+    "heap": "< 512MB for 10K concurrent calls",
+    "startup": "< 3s with Quarkus JVM mode"
+  },
+  "risk_assessment": {
+    "high": [
+      {
+        "item": "Concurrency control semaphore + Virtual Threads \u2014 VTs pin on synchronized",
+        "mitigation": "Convert all synchronized blocks in hot path (SipContext, session state) to ReentrantLock"
+      },
+      {
+        "item": "JAIN SIP (NIST) thread model \u2014 may assume platform threads",
+        "mitigation": "Test extensively for VT compatibility in timer and transport layers"
+      }
+    ],
+    "medium": [
+      {
+        "item": "BusySpinWaitStrategy CPU usage",
+        "mitigation": "Make wait strategy configurable \u2014 YieldingWaitStrategy or SleepingWaitStrategy for non-latency-critical deployments"
+      },
+      {
+        "item": "HashedWheelTimer single-thread \u2014 callbacks fire on wheel thread",
+        "mitigation": "Never block in timer callback. Wrap in Thread.startVirtualThread()"
+      },
+      {
+        "item": "Log4j \u2192 SLF4J migration needed",
+        "mitigation": "sip-servlets uses org.apache.log4j.Logger throughout. Migrate to SLF4J for Quarkus/Spring Boot compat."
+      }
+    ],
+    "low": [
+      {
+        "item": "Bypass executors already default \u2014 smooth transition",
+        "mitigation": "bypassRequestExecutor=true is already default. Disruptor just adds ring buffer before the existing direct path."
+      }
+    ]
+  },
+  "message_flow_complete": {
+    "incoming": "JAIN SIP Listener (gov.nist.javax.sip.SipListenerImpl) on NIO transport",
+    "entry": "SipApplicationDispatcherImpl.processRequest(RequestEvent) / processResponse(ResponseEvent)",
+    "current_path": [
+      "processRequest \u2192 MessageDispatcherFactory.getRequestDispatcher()",
+      "\u2192 InitialRequestDispatcher/SubsequentRequestDispatcher/CancelRequestDispatcher.dispatchMessage()",
+      "\u2192 creates DispatchTask \u2192 asynchronousExecutor.execute(task)",
+      "\u2192 DispatchTask.run() \u2192 dispatch() \u2192 MessageDispatcher.callServlet() \u2192 servlet.service()"
+    ],
+    "new_path": [
+      "processRequest \u2192 RingBuffer.publish(SipMessageEvent)",
+      "\u2192 EventHandler.onEvent() \u2192 dispatcher.dispatchMessage()",
+      "\u2192 VirtualThread.start(() \u2192 dispatchTask.run()) \u2192 dispatch()",
+      "\u2192 MessageDispatcher.callServlet() \u2192 servlet.service()"
+    ],
+    "timer_path": [
+      "SipServletTimerService.createTimer() \u2192 ServletTimerImpl",
+      "\u2192 HashedWheelTimerFacade.schedule() \u2192 Netty HashedWheelTimer",
+      "\u2192 TimerTask.run() on VT \u2192 TimerListener.timeout()"
+    ],
+    "session_lifecycle": [
+      "SipContext.enterSipApp() \u2192 [semaphore acquisition]",
+      "\u2192 process message",
+      "\u2192 SipContext.exitSipApp() \u2192 [semaphore release + HA replication]"
+    ]
+  }
+}

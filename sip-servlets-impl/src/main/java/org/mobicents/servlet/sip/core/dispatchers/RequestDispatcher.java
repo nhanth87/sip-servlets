@@ -231,12 +231,12 @@ public abstract class RequestDispatcher extends MessageDispatcher {
             // Copy all the headers from the original request to the 
             // dialog created request:	
 	        // => not needed already done by the clone method
-//            ListIterator<String> headerNamesListIterator=clonedRequest.getHeaderNames();
+//            ListIterator<String> headerNamesListIterator = (Iterator) (ListIterator) (Iterator) clonedRequest.getHeaderNames();
 //            while (headerNamesListIterator.hasNext()) {
 //                 String name=headerNamesListIterator.next();
 //                 Header header=dialogRequest.getHeader(name);
 //                 if (header==null  ) {
-//                    ListIterator<Header> li=clonedRequest.getHeaders(name);
+//                    ListIterator<Header> li = (ListIterator) clonedRequest.getHeaders(name);
 //                    if (li!=null) {
 //                        while (li.hasNext() ) {
 //                            Header  h = li.next();
@@ -246,7 +246,7 @@ public abstract class RequestDispatcher extends MessageDispatcher {
 //                 }
 //                 else {
 //                     if ( header instanceof ViaHeader) {
-//                         ListIterator<Header> li= clonedRequest.getHeaders(name);
+//                         ListIterator<Header> li = (ListIterator) clonedRequest.getHeaders(name);
 //                         if (li!=null) {
 //                             dialogRequest.removeHeader(name);
 //                             Vector v=new Vector();
